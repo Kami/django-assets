@@ -1,4 +1,4 @@
-from os import path
+from os import path, makedirs
 from django_assets.conf import settings
 from django_assets.updater import get_updater
 from django_assets.filter import get_filter
@@ -177,6 +177,16 @@ class Bundle(object):
             return FileHunk(self.output)
 
         hunk = self._build(self.output, force, no_filters)
+        
+        # If the output directory does not exist, create it
+        output_directory = path.dirname(abspath(self.output))
+        if not path.exists(output_directory):
+            try:
+                 makedirs(output_directory)
+            except OSError, e:
+                if e.errno != errno.EEXISTS:
+                    raise
+
         hunk.save(self.output)
         return hunk
 
